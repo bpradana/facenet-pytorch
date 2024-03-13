@@ -30,9 +30,9 @@ __Only use it for very small-scale facial recognition__.
 
 ![roc](pretrained_model_stats_safe_to_delete/roc_resnet34_epoch_88_triplet.png "ROC Curve")
 
-| Architecture | Loss | Triplet loss selection method | Image Size | Embedding dimension | Margin | Batch Size | Number of identities per triplet batch | Learning Rate | Training Epochs | Number of training iterations per epoch | Optimizer | LFW Accuracy| LFW Precision| LFW Recall | ROC Area Under Curve | TAR (True Acceptance Rate) @ FAR (False Acceptance Rate) = 1e-3 | Best LFW Euclidean distance threshold
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ResNet-34 | Tripet Loss | Hard-negatives | 140x140 | 512 | 0.2 | 544 | 32 | 0.075 then lowered to 0.01 at epoch 85 (checkpoint 84) | 88 | 5000 (440,000 training iterations) | __Adagrad__ (with weight_decay=1e-5, initial_accumulator_value=0.1, eps=1e-10) | 98.45%+-0.5167 | 98.24%+-0.56 | 98.67+-0.94 | 0.9988 | 85.17% | 0.98 |
+| Architecture | Loss        | Triplet loss selection method | Image Size | Embedding dimension | Margin | Batch Size | Number of identities per triplet batch | Learning Rate                                          | Training Epochs | Number of training iterations per epoch | Optimizer                                                                      | LFW Accuracy   | LFW Precision | LFW Recall  | ROC Area Under Curve | TAR (True Acceptance Rate) @ FAR (False Acceptance Rate) = 1e-3 | Best LFW Euclidean distance threshold |
+| ------------ | ----------- | ----------------------------- | ---------- | ------------------- | ------ | ---------- | -------------------------------------- | ------------------------------------------------------ | --------------- | --------------------------------------- | ------------------------------------------------------------------------------ | -------------- | ------------- | ----------- | -------------------- | --------------------------------------------------------------- | ------------------------------------- |
+| ResNet-34    | Tripet Loss | Hard-negatives                | 140x140    | 512                 | 0.2    | 544        | 32                                     | 0.075 then lowered to 0.01 at epoch 85 (checkpoint 84) | 88              | 5000 (440,000 training iterations)      | __Adagrad__ (with weight_decay=1e-5, initial_accumulator_value=0.1, eps=1e-10) | 98.45%+-0.5167 | 98.24%+-0.56  | 98.67+-0.94 | 0.9988               | 85.17%                                                          | 0.98                                  |
 
 
 ### Model state dictionary
@@ -250,6 +250,8 @@ __Note__: '--dataroot' and '--lfw' arguments are required.
                             Path to training triplets numpy file in
                             'datasets/generated_triplets' folder to skip training
                             triplet generation step for the first epoch.
+      --device DEVICE       Device to use for training the model: ('cuda', 'cpu', 
+                            or 'mps') (default: 'cuda')
     ```
 
 ### References

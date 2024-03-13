@@ -28,9 +28,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 
-import torchvision.datasets as datasets
 import os
+
 import numpy as np
+import torchvision.datasets as datasets
 
 
 class LFWDataset(datasets.ImageFolder):
@@ -45,7 +46,7 @@ class LFWDataset(datasets.ImageFolder):
 
     def read_lfw_pairs(self, pairs_filename):
         pairs = []
-        with open(pairs_filename, 'r') as f:
+        with open(pairs_filename, "r") as f:
             for line in f.readlines()[1:]:
                 pair = line.strip().split()
                 pairs.append(pair)
@@ -60,29 +61,49 @@ class LFWDataset(datasets.ImageFolder):
         issame_list = []
         for pair in pairs:
             if len(pair) == 3:
-                path0 = self.add_extension(os.path.join(lfw_dir, pair[0], pair[0] + '_' + '%04d' % int(pair[1])))
-                path1 = self.add_extension(os.path.join(lfw_dir, pair[0], pair[0] + '_' + '%04d' % int(pair[2])))
+                path0 = self.add_extension(
+                    os.path.join(
+                        lfw_dir, pair[0], pair[0] + "_" + "%04d" % int(pair[1])
+                    )
+                )
+                path1 = self.add_extension(
+                    os.path.join(
+                        lfw_dir, pair[0], pair[0] + "_" + "%04d" % int(pair[2])
+                    )
+                )
                 issame = True
             elif len(pair) == 4:
-                path0 = self.add_extension(os.path.join(lfw_dir, pair[0], pair[0] + '_' + '%04d' % int(pair[1])))
-                path1 = self.add_extension(os.path.join(lfw_dir, pair[2], pair[2] + '_' + '%04d' % int(pair[3])))
+                path0 = self.add_extension(
+                    os.path.join(
+                        lfw_dir, pair[0], pair[0] + "_" + "%04d" % int(pair[1])
+                    )
+                )
+                path1 = self.add_extension(
+                    os.path.join(
+                        lfw_dir, pair[2], pair[2] + "_" + "%04d" % int(pair[3])
+                    )
+                )
                 issame = False
-            if os.path.exists(path0) and os.path.exists(path1):  # Only add the pair if both paths exist
+            else:
+                raise ValueError("Invalid number of paths: %d" % len(pair))
+            if os.path.exists(path0) and os.path.exists(
+                path1
+            ):  # Only add the pair if both paths exist
                 path_list.append((path0, path1, issame))
                 issame_list.append(issame)
             else:
                 nrof_skipped_pairs += 1
         if nrof_skipped_pairs > 0:
-            print('Skipped %d image pairs' % nrof_skipped_pairs)
+            print("Skipped %d image pairs" % nrof_skipped_pairs)
 
         return path_list
 
     # Modified here
     def add_extension(self, path):
-        if os.path.exists(path + '.jpg'):
-            return path + '.jpg'
-        elif os.path.exists(path + '.png'):
-            return path + '.png'
+        if os.path.exists(path + ".jpg"):
+            return path + ".jpg"
+        elif os.path.exists(path + ".png"):
+            return path + ".png"
         else:
             raise RuntimeError('No file "%s" with extension png or jpg.' % path)
 
@@ -95,8 +116,8 @@ class LFWDataset(datasets.ImageFolder):
 
         def transform(img_path):
             """Convert image into numpy array and apply transformation
-               Doing this so that it is consistent with all other datasets
-               to return a PIL Image.
+            Doing this so that it is consistent with all other datasets
+            to return a PIL Image.
             """
 
             img = self.loader(img_path)

@@ -6,19 +6,28 @@
      support .png, .jpg, and .jpeg files.
 """
 
-
 import os
+
 import numpy as np
 import pandas as pd
 import torch
-from tqdm import tqdm
 from PIL import Image
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 
 class TripletFaceDataset(Dataset):
-    def __init__(self, root_dir, training_dataset_csv_path, num_triplets, epoch, num_human_identities_per_batch=32,
-                 triplet_batch_size=544, training_triplets_path=None, transform=None):
+    def __init__(
+        self,
+        root_dir,
+        training_dataset_csv_path,
+        num_triplets,
+        epoch,
+        num_human_identities_per_batch=32,
+        triplet_batch_size=544,
+        training_triplets_path=None,
+        transform=None,
+    ):
         """
         Args:
 
@@ -39,7 +48,10 @@ class TripletFaceDataset(Dataset):
         # Modified here to set the data types of the dataframe columns to be suitable for other datasets other than the
         #  VggFace2 dataset (Casia-WebFace in this case because of the identities starting with numbers automatically
         #  forcing the 'name' column as being of type 'int' instead of type 'object')
-        self.df = pd.read_csv(training_dataset_csv_path, dtype={'id': object, 'name': object, 'class': int})
+        self.df = pd.read_csv(
+            training_dataset_csv_path,
+            dtype={"id": object, "name": object, "class": int},
+        )
         self.root_dir = root_dir
         self.num_triplets = num_triplets
         self.num_human_identities_per_batch = num_human_identities_per_batch
@@ -52,7 +64,9 @@ class TripletFaceDataset(Dataset):
         df_dict = self.df.to_dict()
         self.df_dict_class_name = df_dict["name"]
         self.df_dict_id = df_dict["id"]
-        self.df_dict_class_reversed = {value: key for (key, value) in df_dict["class"].items()}
+        self.df_dict_class_reversed = {
+            value: key for (key, value) in df_dict["class"].items()
+        }
 
         if training_triplets_path is None:
             self.training_triplets = self.generate_triplets()
@@ -62,10 +76,10 @@ class TripletFaceDataset(Dataset):
 
     def make_dictionary_for_face_class(self):
         """
-            face_classes = {'class0': [class0_id0, ...], 'class1': [class1_id0, ...], ...}
+        face_classes = {'class0': [class0_id0, ...], 'class1': [class1_id0, ...], ...}
         """
         face_classes = dict()
-        for idx, label in enumerate(self.df['class']):
+        for idx, label in enumerate(self.df["class"]):
             if label not in face_classes:
                 face_classes[label] = []
             # Instead of utilizing the computationally intensive pandas.dataframe.iloc() operation
@@ -75,19 +89,23 @@ class TripletFaceDataset(Dataset):
 
     def generate_triplets(self):
         triplets = []
-        classes = self.df['class'].unique()
+        classes = self.df["class"].unique()
         face_classes = self.make_dictionary_for_face_class()
 
         print("\nGenerating {} triplets ...".format(self.num_triplets))
-        num_training_iterations_per_process = self.num_triplets / self.triplet_batch_size
-        progress_bar = tqdm(range(int(num_training_iterations_per_process)))  # tqdm progress bar does not iterate through float numbers
+        num_training_iterations_per_process = (
+            self.num_triplets / self.triplet_batch_size
+        )
+        progress_bar = tqdm(
+            range(int(num_training_iterations_per_process))
+        )  # tqdm progress bar does not iterate through float numbers
 
         for training_iteration in progress_bar:
 
             """
-            For each batch: 
+            For each batch:
                 - Randomly choose set amount of human identities (classes) for each batch
-            
+
                   - For triplet in batch:
                       - Randomly choose anchor, positive and negative images for triplet loss
                       - Anchor and positive images in pos_class
@@ -95,7 +113,9 @@ class TripletFaceDataset(Dataset):
                       - At least, two images needed for anchor and positive images in pos_class
                       - Negative image should have different class as anchor and positive images by definition
             """
-            classes_per_batch = np.random.choice(classes, size=self.num_human_identities_per_batch, replace=False)
+            classes_per_batch = np.random.choice(
+                classes, size=self.num_human_identities_per_batch, replace=False
+            )
 
             for triplet in range(self.triplet_batch_size):
 
@@ -135,15 +155,21 @@ class TripletFaceDataset(Dataset):
                         pos_class,
                         neg_class,
                         pos_name,
-                        neg_name
+                        neg_name,
                     ]
                 )
 
-        print("Saving training triplets list in 'datasets/generated_triplets' directory ...")
-        np.save('datasets/generated_triplets/epoch_{}_training_triplets_{}_identities_{}_batch_{}.npy'.format(
-                self.epoch, self.num_triplets, self.num_human_identities_per_batch, self.triplet_batch_size
+        print(
+            "Saving training triplets list in 'datasets/generated_triplets' directory ..."
+        )
+        np.save(
+            "datasets/generated_triplets/epoch_{}_training_triplets_{}_identities_{}_batch_{}.npy".format(
+                self.epoch,
+                self.num_triplets,
+                self.num_human_identities_per_batch,
+                self.triplet_batch_size,
             ),
-            triplets
+            triplets,
         )
         print("Training triplets' list Saved!\n")
 
@@ -151,43 +177,53 @@ class TripletFaceDataset(Dataset):
 
     # Added this method to allow .jpg, .png, and .jpeg image support
     def add_extension(self, path):
-        if os.path.exists(path + '.jpg'):
-            return path + '.jpg'
-        elif os.path.exists(path + '.png'):
-            return path + '.png'
-        elif os.path.exists(path + '.jpeg'):
-            return path + '.jpeg'
+        if os.path.exists(path + ".jpg"):
+            return path + ".jpg"
+        elif os.path.exists(path + ".png"):
+            return path + ".png"
+        elif os.path.exists(path + ".jpeg"):
+            return path + ".jpeg"
         else:
-            raise RuntimeError('No file "{}" with extension .png or .jpg or .jpeg'.format(path))
+            raise RuntimeError(
+                'No file "{}" with extension .png or .jpg or .jpeg'.format(path)
+            )
 
     def __getitem__(self, idx):
 
-        anc_id, pos_id, neg_id, pos_class, neg_class, pos_name, neg_name = self.training_triplets[idx]
+        anc_id, pos_id, neg_id, pos_class, neg_class, pos_name, neg_name = (
+            self.training_triplets[idx]
+        )
 
-        anc_img = self.add_extension(os.path.join(self.root_dir, str(pos_name), str(anc_id)))
-        pos_img = self.add_extension(os.path.join(self.root_dir, str(pos_name), str(pos_id)))
-        neg_img = self.add_extension(os.path.join(self.root_dir, str(neg_name), str(neg_id)))
+        anc_img = self.add_extension(
+            os.path.join(self.root_dir, str(pos_name), str(anc_id))
+        )
+        pos_img = self.add_extension(
+            os.path.join(self.root_dir, str(pos_name), str(pos_id))
+        )
+        neg_img = self.add_extension(
+            os.path.join(self.root_dir, str(neg_name), str(neg_id))
+        )
 
         # Modified to open as PIL image in the first place
         anc_img = Image.open(anc_img)
         pos_img = Image.open(pos_img)
         neg_img = Image.open(neg_img)
 
-        pos_class = torch.from_numpy(np.array([pos_class]).astype('long'))
-        neg_class = torch.from_numpy(np.array([neg_class]).astype('long'))
+        pos_class = torch.from_numpy(np.array([pos_class]).astype("long"))
+        neg_class = torch.from_numpy(np.array([neg_class]).astype("long"))
 
         sample = {
-            'anc_img': anc_img,
-            'pos_img': pos_img,
-            'neg_img': neg_img,
-            'pos_class': pos_class,
-            'neg_class': neg_class
+            "anc_img": anc_img,
+            "pos_img": pos_img,
+            "neg_img": neg_img,
+            "pos_class": pos_class,
+            "neg_class": neg_class,
         }
 
         if self.transform:
-            sample['anc_img'] = self.transform(sample['anc_img'])
-            sample['pos_img'] = self.transform(sample['pos_img'])
-            sample['neg_img'] = self.transform(sample['neg_img'])
+            sample["anc_img"] = self.transform(sample["anc_img"])
+            sample["pos_img"] = self.transform(sample["pos_img"])
+            sample["neg_img"] = self.transform(sample["neg_img"])
 
         return sample
 

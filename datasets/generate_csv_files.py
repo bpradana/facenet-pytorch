@@ -5,20 +5,27 @@
     which significantly slows performance.
 """
 
-import os
-import glob
-import pandas as pd
-import time
 import argparse
+import glob
+import os
+import time
+
+import pandas as pd
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description="Generating csv file for triplet loss!")
-parser.add_argument('--dataroot', '-d', type=str, required=True,
-                    help="(REQUIRED) Absolute path to the dataset folder to generate a csv file containing the paths of the training images for triplet loss training."
-                    )
-parser.add_argument('--csv_name', type=str,
-                    help="Required name of the csv file to be generated. (default: 'glint360k.csv')"
-                    )
+parser.add_argument(
+    "--dataroot",
+    "-d",
+    type=str,
+    required=True,
+    help="(REQUIRED) Absolute path to the dataset folder to generate a csv file containing the paths of the training images for triplet loss training.",
+)
+parser.add_argument(
+    "--csv_name",
+    type=str,
+    help="Required name of the csv file to be generated. (default: 'glint360k.csv')",
+)
 args = parser.parse_args()
 dataroot = args.dataroot
 csv_name = args.csv_name
@@ -45,23 +52,23 @@ def generate_csv_file(dataroot, csv_name="glint360k.csv"):
 
     for file_index, file in progress_bar:
 
-        face_id = os.path.basename(file).split('.')[0]
+        face_id = os.path.basename(file).split(".")[0]
         face_label = os.path.basename(os.path.dirname(file))
 
         # Better alternative than dataframe.append()
-        row = {'id': face_id, 'name': face_label}
+        row = {"id": face_id, "name": face_label}
         list_rows.append(row)
 
     dataframe = pd.DataFrame(list_rows)
-    dataframe = dataframe.sort_values(by=['name', 'id']).reset_index(drop=True)
+    dataframe = dataframe.sort_values(by=["name", "id"]).reset_index(drop=True)
 
     # Encode names as categorical classes
-    dataframe['class'] = pd.factorize(dataframe['name'])[0]
+    dataframe["class"] = pd.factorize(dataframe["name"])[0]
     dataframe.to_csv(path_or_buf=csv_name, index=False)
 
-    elapsed_time = time.time()-start_time
-    print("\nDone! Elapsed time: {:.2f} minutes.".format(elapsed_time/60))
+    elapsed_time = time.time() - start_time
+    print("\nDone! Elapsed time: {:.2f} minutes.".format(elapsed_time / 60))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     generate_csv_file(dataroot=dataroot, csv_name=csv_name)

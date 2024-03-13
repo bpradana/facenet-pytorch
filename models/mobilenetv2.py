@@ -12,6 +12,7 @@ class MobileNetV2Triplet(nn.Module):
         pretrained (bool): If True, returns a model pre-trained on the ImageNet dataset from a PyTorch repository.
                             Defaults to False.
     """
+
     def __init__(self, embedding_dimension=512, pretrained=False):
         super(MobileNetV2Triplet, self).__init__()
         self.model = mobilenet_v2(pretrained=pretrained)

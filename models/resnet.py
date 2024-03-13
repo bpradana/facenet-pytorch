@@ -19,7 +19,9 @@ class Resnet18Triplet(nn.Module):
 
         # Output embedding
         input_features_fc_layer = self.model.fc.in_features
-        self.model.fc = nn.Linear(input_features_fc_layer, embedding_dimension, bias=False)
+        self.model.fc = nn.Linear(
+            input_features_fc_layer, embedding_dimension, bias=False
+        )
 
     def forward(self, images):
         """Forward pass to output the embedding vector (feature vector) after l2-normalization."""
@@ -46,7 +48,9 @@ class Resnet34Triplet(nn.Module):
 
         # Output embedding
         input_features_fc_layer = self.model.fc.in_features
-        self.model.fc = nn.Linear(input_features_fc_layer, embedding_dimension, bias=False)
+        self.model.fc = nn.Linear(
+            input_features_fc_layer, embedding_dimension, bias=False
+        )
 
     def forward(self, images):
         """Forward pass to output the embedding vector (feature vector) after l2-normalization."""
@@ -73,7 +77,9 @@ class Resnet50Triplet(nn.Module):
 
         # Output embedding
         input_features_fc_layer = self.model.fc.in_features
-        self.model.fc = nn.Linear(input_features_fc_layer, embedding_dimension, bias=False)
+        self.model.fc = nn.Linear(
+            input_features_fc_layer, embedding_dimension, bias=False
+        )
 
     def forward(self, images):
         """Forward pass to output the embedding vector (feature vector) after l2-normalization."""
@@ -100,7 +106,9 @@ class Resnet101Triplet(nn.Module):
 
         # Output embedding
         input_features_fc_layer = self.model.fc.in_features
-        self.model.fc = nn.Linear(input_features_fc_layer, embedding_dimension, bias=False)
+        self.model.fc = nn.Linear(
+            input_features_fc_layer, embedding_dimension, bias=False
+        )
 
     def forward(self, images):
         """Forward pass to output the embedding vector (feature vector) after l2-normalization."""
@@ -127,7 +135,9 @@ class Resnet152Triplet(nn.Module):
 
         # Output embedding
         input_features_fc_layer = self.model.fc.in_features
-        self.model.fc = nn.Linear(input_features_fc_layer, embedding_dimension, bias=False)
+        self.model.fc = nn.Linear(
+            input_features_fc_layer, embedding_dimension, bias=False
+        )
 
     def forward(self, images):
         """Forward pass to output the embedding vector (feature vector) after l2-normalization."""
