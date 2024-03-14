@@ -343,11 +343,11 @@ class GhostBottleneckV2(nn.Module):
         return x
 
 
-class EmbeddingHead(nn.Module):
+class RecognitionHead(nn.Module):
     def __init__(
         self, in_channels, embedding_size=512, kernel_size=7, num_classes=None
     ):
-        super(EmbeddingHead, self).__init__()
+        super(RecognitionHead, self).__init__()
         self.embedding_head = nn.Sequential(
             nn.Conv2d(
                 in_channels,
@@ -362,6 +362,7 @@ class EmbeddingHead(nn.Module):
             nn.Flatten(),
             nn.BatchNorm1d(embedding_size),
             nn.Linear(embedding_size, num_classes if num_classes else embedding_size),
+            nn.PReLU(),
         )
 
     def forward(self, x):
@@ -401,7 +402,7 @@ class GhostNet(nn.Module):
 
         self.conv_2 = ConvBnAct(out_channels, expansion_size, kernel_size=1, stride=1)  # type: ignore
 
-        self.embedding_head = EmbeddingHead(expansion_size, embedding_size)  # type: ignore
+        self.embedding_head = RecognitionHead(expansion_size, embedding_size)  # type: ignore
 
     def forward(self, x):
         x = self.conv_1(x)
