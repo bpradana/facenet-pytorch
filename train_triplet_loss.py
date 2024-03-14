@@ -22,6 +22,7 @@ from models.resnet import (
     Resnet101Triplet,
     Resnet152Triplet,
 )
+from models.ghostnet import GhostNetTriplet
 from plot import plot_accuracy_lfw, plot_roc_lfw
 from validate_on_LFW import evaluate_lfw
 
@@ -68,8 +69,9 @@ parser.add_argument(
         "resnet152",
         "inceptionresnetv2",
         "mobilenetv2",
+        "ghostnet",
     ],
-    help="The required model architecture for training: ('resnet18','resnet34', 'resnet50', 'resnet101', 'resnet152', 'inceptionresnetv2', 'mobilenetv2'), (default: 'resnet34')",
+    help="The required model architecture for training: ('resnet18','resnet34', 'resnet50', 'resnet101', 'resnet152', 'inceptionresnetv2', 'mobilenetv2', 'ghostnet'), (default: 'resnet34')",
 )
 parser.add_argument(
     "--pretrained",
@@ -180,6 +182,10 @@ def set_model_architecture(model_architecture, pretrained, embedding_dimension):
         )
     elif model_architecture == "mobilenetv2":
         model = MobileNetV2Triplet(
+            embedding_dimension=embedding_dimension, pretrained=pretrained
+        )
+    elif model_architecture == "ghostnet":
+        model = GhostNetTriplet(
             embedding_dimension=embedding_dimension, pretrained=pretrained
         )
     else:
